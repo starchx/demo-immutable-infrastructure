@@ -9,7 +9,7 @@
     "aws_vpc_id": "",
     "date_time": "{{timestamp}}",
     "local_scripts_dir": "scripts/webserver",
-    "remote_scripts_dir": "/home/ubuntu/webserver",
+    "remote_scripts_dir": "/home/ubuntu/webserver"
   },
 
   "builders": [
