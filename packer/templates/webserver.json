@@ -48,6 +48,11 @@
       "destination": "/opt"
     },
     {
+      "type": "file",
+      "source": "application",
+      "destination": "/opt"
+    },
+    {
       "type": "shell",
       "script": "{{user `local_scripts_dir`}}/02_run_puppet.sh",
       "remote_path": "{{user `remote_scripts_dir`}}/02_run_puppet.sh"

@@ -2,7 +2,7 @@
 class role::packer::webserver (
 ) {
 
-  package { 'php':
+  package { 'php5':
     ensure => present,
   }
 

@@ -3,7 +3,7 @@ class role::startup::webserver (
   $environment = 'stg',
 ) {
 
-  file { '/etc/httpd/conf.d/server-environment.conf':
+  file { '/etc/apache2/conf.d/server-environment.conf':
     ensure  => present,
     owner   => 'root',
     group   => 'root',
