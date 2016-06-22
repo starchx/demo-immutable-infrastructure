@@ -2,11 +2,15 @@
 
 echo "<h1>Hey Dude #1</h1>";
 
-if(stristr($_SERVER[HTTP_HOST], 'stg.opq.com.au') === TRUE)
+if (getenv('ENVIRONMENT') == 'stg')
 {
   echo "<h2>I am staging</h2>";
 }
-else
+else if (getenv('ENVIRONMENT') == 'prd')
 { 
   echo "<h2>I am production</h2>";
+}
+else
+{ 
+  echo "<h2>I don't know which environment I am.</h2>";
 }

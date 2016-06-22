@@ -1,0 +1,12 @@
+{
+  "aws_source_ami": "ami-631e6459",
+  "aws_instance_type": "t2.nano",
+  "aws_instance_profile": "Packer-Dependencies-InstanceProfile-1VPIN7ANDIIOR",
+  "aws_region": "ap-southeast-2",
+  "aws_vpc_id": "vpc-ef12018d",
+  "aws_subnet_id": "subnet-38f0a97e",
+  "aws_security_group_id": "sg-b9ee66dd",
+  "aws_ssh_private_ip": "true",
+  "aws_assoc_public_ip": "false",
+  "aws_delete_ebs": "true"
+}

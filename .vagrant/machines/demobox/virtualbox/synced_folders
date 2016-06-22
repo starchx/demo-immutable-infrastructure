@@ -1,0 +1,1 @@
+{"virtualbox":{"/opt/demo-immutable-infrastructure":{"guestpath":"/opt/demo-immutable-infrastructure","hostpath":"D:/dev/demo-immutable-infrastructure","disabled":false,"__vagrantfile":true},"/vagrant":{"guestpath":"/vagrant","hostpath":"D:/dev/demo-immutable-infrastructure","disabled":false,"__vagrantfile":true}}}
