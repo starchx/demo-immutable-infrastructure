@@ -8,7 +8,7 @@
     "aws_subnet_id": "",
     "aws_vpc_id": "",
     "date_time": "{{timestamp}}",
-    "local_scripts_dir": "scripts/webserver",
+    "local_scripts_dir": "packer/scripts/webserver",
     "remote_scripts_dir": "/home/ubuntu/webserver"
   },
 
