@@ -1,52 +1,31 @@
 {
   "variables": {
-    "release": null,
-    "aws_assoc_public_ip": null,
+    "release": "v1.0.0",
     "aws_delete_ebs": null,
-    "aws_instance_profile": "",
-    "aws_instance_type": "c4.xlarge",
+    "aws_instance_type": "t2.nano",
     "aws_region": null,
-    "aws_security_group_id": "",
     "aws_source_ami": null,
-    "aws_ssh_private_ip": null,
     "aws_subnet_id": "",
     "aws_vpc_id": "",
-    "cost_centre": "",
     "date_time": "{{timestamp}}",
-    "http_proxy": null,
-    "local_scripts_dir": "scripts/jenkins",
-    "remote_scripts_dir": "/home/ec2-user/jenkins",
-    "s3_bucket": ""
+    "local_scripts_dir": "scripts/webserver",
+    "remote_scripts_dir": "/home/ubuntu/webserver",
   },
 
   "builders": [
     {
       "name": "default",
-      "ami_name": "webserver-{{user `release`}}",
+      "ami_name": "webserver-{{user `release`}}-{{user `date_time`}}",
       "type": "amazon-ebs",
       "region": "{{user `aws_region`}}",
       "source_ami": "{{user `aws_source_ami`}}",
       "instance_type": "{{user `aws_instance_type`}}",
-      "iam_instance_profile": "{{user `aws_instance_profile`}}",
-      "ssh_private_ip": "{{user `aws_ssh_private_ip`}}",
-      "associate_public_ip_address": "{{user `aws_assoc_public_ip`}}",
       "subnet_id": "{{user `aws_subnet_id`}}",
       "vpc_id": "{{user `aws_vpc_id`}}",
-      "security_group_id": "{{user `aws_security_group_id`}}",
-      "ssh_username": "ec2-user",
+      "ssh_username": "ubuntu",
       "ssh_timeout": "5m",
-      "launch_block_device_mappings": [
-        {
-          "device_name": "/dev/xvdp",
-          "volume_type": "gp2",
-          "volume_size": 15,
-          "encrypted": false,
-          "delete_on_termination": "{{user `aws_delete_ebs`}}"
-        }
-      ],
       "run_tags": {
-        "Name": "jenkins-packer-build",
-        "CC": "{{user `cost_centre`}}",
+        "Name": "webserver-packer-build",
         "StopHour": "DoNotStop"
       }
     }
@@ -56,12 +35,12 @@
     {
       "type": "shell",
       "inline": [ "mkdir -p {{user `remote_scripts_dir`}}" ],
-      "remote_path": "/home/ec2-user/packer_install_jenkins.sh"
+      "remote_path": "/home/ubuntu/packer_setup_webserver.sh"
     },
     {
       "type": "shell",
-      "script": "{{user `local_scripts_dir`}}/02_mkdir_opt_puppet.sh",
-      "remote_path": "{{user `remote_scripts_dir`}}/02_mkdir_opt_puppet.sh"
+      "script": "{{user `local_scripts_dir`}}/01_mkdir_opt_puppet.sh",
+      "remote_path": "{{user `remote_scripts_dir`}}/01_mkdir_opt_puppet.sh"
     },
     {
       "type": "file",
@@ -70,13 +49,13 @@
     },
     {
       "type": "shell",
-      "script": "{{user `local_scripts_dir`}}/03_run_puppet.sh",
-      "remote_path": "{{user `remote_scripts_dir`}}/03_run_puppet.sh"
+      "script": "{{user `local_scripts_dir`}}/02_run_puppet.sh",
+      "remote_path": "{{user `remote_scripts_dir`}}/02_run_puppet.sh"
     },
     {
       "type": "shell",
-      "scripts": "{{user `local_scripts_dir`}}/99_packer_cleanup_jenkins_scripts.sh",
-      "remote_path": "/home/ec2-user/99_packer_cleanup_jenkins_scripts.sh"
+      "scripts": "{{user `local_scripts_dir`}}/99_packer_cleanup_webserver_scripts.sh",
+      "remote_path": "/home/ubuntu/99_packer_cleanup_webserver_scripts.sh"
     }
   ]
 }
