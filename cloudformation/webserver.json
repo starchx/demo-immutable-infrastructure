@@ -149,7 +149,7 @@
           }
         ],
         "SecurityGroupIngress": [
-          { "CidrIp": { "Ref": "ELBSG" }, "IpProtocol": "tcp", "FromPort": 80, "ToPort": 80 }
+          { "SourceSecurityGroupId": { "Ref": "ELBSG" }, "IpProtocol": "tcp", "FromPort": 80, "ToPort": 80 }
         ],
         "Tags": [
           {
