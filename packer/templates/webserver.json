@@ -15,7 +15,7 @@
   "builders": [
     {
       "name": "default",
-      "ami_name": "webserver-{{user `release`}}-{{user `date_time`}}",
+      "ami_name": "webserver-v{{user `release`}}-{{user `date_time`}}",
       "type": "amazon-ebs",
       "region": "{{user `aws_region`}}",
       "source_ami": "{{user `aws_source_ami`}}",
