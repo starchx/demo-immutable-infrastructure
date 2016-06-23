@@ -6,10 +6,10 @@ class role::packer::webserver (
     ensure => present,
   }
 
-  package { 'php5':
+  class { 'apache': }
+
+  package { ['php5', 'libapache2-mod-php5', 'php5-mcrypt']:
     ensure => present,
   }
-
-  class { 'apache': }
 
 }
