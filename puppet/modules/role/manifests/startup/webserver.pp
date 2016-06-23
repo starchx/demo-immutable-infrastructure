@@ -9,6 +9,11 @@ class role::startup::webserver (
     group   => 'root',
     mode    => '0644',
     content => template('role/server-environment.conf.erb'),
+    notify  => Service['apache2'],
+  }
+
+  service { 'apache2': 
+    ensure => running,
   }
 
 }
