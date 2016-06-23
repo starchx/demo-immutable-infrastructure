@@ -236,7 +236,7 @@
                 "ENV_DOWNCASE=`echo $ENV_DOWNCASE | tr '[:upper:]' '[:lower:]'` \n",
                 "echo ### Setting time correctly.... \n",
                 "service ntp stop \n",
-                "ntpd -gq \n",
+                "ntpd -gq || true \n",
                 "service ntp start \n",
                 "echo [`date`] beginning UserData boot script\n",
                 "cd /opt/puppet && puppet apply --ordering=manifest --environment=${ENV_DOWNCASE} --hiera_config=hiera.yaml --modulepath=modules manifests/webserver_startup.pp | tee /root/webserver_startup.log\n",
