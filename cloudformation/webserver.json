@@ -1,0 +1,299 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "AWS CloudFormation template to deploy demo webserver",
+  "Parameters": {
+    "Appname": {
+      "Description": "Name of application.",
+      "Type": "String",
+      "Default": "webserver"
+    },
+    "AMI": {
+        "Description": "Application AMI ID",
+        "Type": "String",
+        "Default": "ami-6c14310f"
+    },
+    "BuildNumber": {
+      "Description": "Build number for tagging.",
+      "Type": "Number",
+      "Default": "0"
+    },
+    "Environment": {
+      "Description": "Environment for tagging eg. DEV, PRD, UAT, etc",
+      "Type": "String",
+      "Default": "STG",
+      "AllowedValues": [
+        "STG",
+        "PRD"
+      ]
+    },
+    "InstanceType": {
+      "Description": "EC2 instance type",
+      "Type": "String",
+      "Default": "t2.large",
+      "AllowedValues": [
+        "t2.micro",
+        "m3.medium",
+        "c4.xlarge"
+      ],
+      "ConstraintDescription": "must be a valid EC2 instance type."
+    },
+    "KeyName": {
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    },
+    "OpHours": {
+      "Description": "Operational Hours for tagging.",
+      "Type": "String",
+      "Default": "DoNotStop"
+    },
+    "Subnets": {
+      "Description": "Comma separated pair of MidTier Subnet IDs",
+      "Type": "List<AWS::EC2::Subnet::Id>",
+      "ConstraintDescription": "Must be a list of valid existing Subnet IDs expressed as as 'subnet-hhhhhhhh, subnet-hhhhhhhh'"
+    },
+    "VPC": {
+        "Description": "VPC",
+        "Type": "AWS::EC2::VPC::Id"
+    }
+  },
+  "Resources": {
+    "AutoScalingGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "LaunchConfigurationName": { "Ref": "LaunchConfiguration" },
+        "MinSize": 2,
+        "MaxSize": 4,
+        "DesiredCapacity": 2,
+        "LoadBalancerNames": [ { "Ref": "LoadBalancer" } ],
+        "HealthCheckGracePeriod": 600,
+        "HealthCheckType": "ELB",
+        "VPCZoneIdentifier": [
+          { "Fn::Select": [ 0, { "Ref": "Subnets" } ] },
+          { "Fn::Select": [ 1, { "Ref": "Subnets" } ] }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "PropagateAtLaunch": true,
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  { "Ref": "Appname" },
+                  { "Ref": "Environment" },
+                  { "Ref": "BuildNumber" }
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Appname",
+            "PropagateAtLaunch": true,
+            "Value": { "Ref": "Appname" }
+          },
+          {
+            "Key": "Environment",
+            "PropagateAtLaunch": true,
+            "Value": { "Ref": "Environment" }
+          },
+          {
+            "Key": "StopHour",
+            "PropagateAtLaunch": true,
+            "Value": "DoNotStop"
+          }
+        ]
+      }
+    },
+    "ELBSG": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "The security group for the demo application stack",
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupIngress": [
+          { "CidrIp": "0.0.0.0", "IpProtocol": "tcp", "FromPort": 80, "ToPort": 80 }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  { "Ref": "Appname" },
+                  { "Ref": "Environment" },
+                  { "Ref": "BuildNumber" }
+                ]
+              ]
+            }
+          },
+          { "Key": "Appname", "Value": { "Ref": "Appname" } },
+          { "Key": "Environment", "Value": { "Ref": "Environment" } }
+        ]
+      }
+    },
+    "ApplicationInstanceSG": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "The security group for the demo launch configuration",
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "FromPort": "1",
+            "IpProtocol": "-1",
+            "ToPort": "65535"
+          }
+        ],
+        "SecurityGroupIngress": [
+          { "CidrIp": { "Ref": "ELBSG" }, "IpProtocol": "tcp", "FromPort": 80, "ToPort": 80 }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  { "Ref": "Appname" },
+                  { "Ref": "Environment" },
+                  { "Ref": "BuildNumber" }
+                ]
+              ]
+            }
+          },
+          { "Key": "Appname", "Value": { "Ref": "Appname" } },
+          { "Key": "Environment", "Value": { "Ref": "Environment" } }
+        ]
+      }
+    },
+    "LoadBalancer": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties": {
+        "ConnectionSettings": {
+          "IdleTimeout": 300
+        },
+        "HealthCheck": {
+          "Target": "TCP:80",
+          "HealthyThreshold": "3",
+          "UnhealthyThreshold": "3",
+          "Interval": "10",
+          "Timeout": "5"
+        },
+        "Listeners": [
+          {
+            "LoadBalancerPort": "80",
+            "InstancePort": "80",
+            "Protocol": "HTTP",
+            "InstanceProtocol": "HTTP"
+          }
+        ],
+        "CrossZone": true,
+        "Scheme": "internet-facing",
+        "SecurityGroups": [ { "Ref": "ELBSG" } ],
+        "Subnets": [
+          { "Fn::Select": [ 0, { "Ref": "Subnets" } ] },
+          { "Fn::Select": [ 1, { "Ref": "Subnets" } ] }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "-",
+                [
+                  { "Ref": "Appname" },
+                  { "Ref": "Environment" },
+                  { "Ref": "BuildNumber" }
+                ]
+              ]
+            }
+          },
+          { "Key": "Appname", "Value": { "Ref": "Appname" } },
+          { "Key": "Environment", "Value": { "Ref": "Environment" } }
+        ]
+      }
+    },
+    "LaunchConfiguration": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Properties": {
+        "InstanceType": { "Ref": "InstanceType" },
+        "ImageId": { "Ref": "AMI" },
+        "KeyName": { "Ref": "KeyName" },
+        "SecurityGroups": [ { "Ref": "ApplicationInstanceSG" } ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -vex\n",
+                "ENV_DOWNCASE='",
+                { "Ref": "Environment" },
+                "' \n",
+                "ENV_DOWNCASE=`echo $ENV_DOWNCASE | tr '[:upper:]' '[:lower:]'` \n",
+                "echo ### Setting time correctly.... \n",
+                "service ntpd stop \n",
+                "ntpd -gq \n",
+                "service ntpd start \n",
+                "echo [`date`] beginning UserData boot script\n",
+                "cd /opt/puppet && puppet apply --ordering=manifest --environment=${ENV_DOWNCASE} --hiera_config=hiera.yaml --modulepath=modules manifests/webserver_startup.pp | tee /root/webserver_startup.log\n",
+                "echo [`date`] ending UserData boot script"
+              ]
+            ]
+          }
+        }
+      },
+      "CreationPolicy": { "ResourceSignal": { "Count": "1",  "Timeout": "PT10M" } }
+    },
+    "SOEScaleUpPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "DependsOn": "AutoScalingGroup",
+      "Properties": {
+        "AdjustmentType": "ChangeInCapacity",
+        "AutoScalingGroupName": {
+          "Ref": "AutoScalingGroup"
+        },
+        "Cooldown": 300,
+        "ScalingAdjustment": 1
+      }
+    },
+    "SOECPUAlarmHigh": {
+      "DependsOn": [
+        "SOEScaleUpPolicy"
+      ],
+      "Properties": {
+        "AlarmDescription": "Scale-up if CPU > 80% for 5 minutes",
+        "Threshold": 80,
+        "AlarmActions": [
+          {
+            "Ref": "SOEScaleUpPolicy"
+          }
+        ],
+        "ComparisonOperator": "GreaterThanThreshold",
+        "EvaluationPeriods": 5,
+        "MetricName": "CPUUtilization",
+        "Namespace": "AWS/EC2",
+        "Statistic": "Average",
+        "Period": 60,
+        "Dimensions": [
+          {
+            "Name": "AutoScalingGroupName",
+            "Value": {
+              "Ref": "AutoScalingGroup"
+            }
+          }
+        ]
+      },
+      "Type": "AWS::CloudWatch::Alarm"
+    },
+  },
+  "Outputs": {
+    "ELBInternalDNSName": {
+      "Description": "Application ELB's public DNS name.",
+      "Value": { "Fn::GetAtt": [ "LoadBalancer", "DNSName" ] }
+    }
+  }
+}
