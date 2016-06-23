@@ -34,6 +34,8 @@ Vagrant.configure(2) do |config|
         sudo echo "export HTTPS_PROXY=http://10.21.160.105:8080" >> /etc/profile.d/sbs_proxy.sh
         sudo chmod 644 /etc/profile.d/sbs_proxy.sh
 
+        echo 'Acquire::http::Proxy "http://10.21.160.105:8080";' | sudo tee -a /etc/apt/apt.conf
+
         wget https://apt.puppetlabs.com/puppetlabs-release-trusty.deb
         sudo dpkg -i puppetlabs-release-trusty.deb
         sudo apt-get update
