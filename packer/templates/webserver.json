@@ -59,6 +59,11 @@
     },
     {
       "type": "shell",
+      "script": "{{user `local_scripts_dir`}}/03_copy_application_code.sh",
+      "remote_path": "{{user `remote_scripts_dir`}}/03_copy_application_code.sh"
+    },
+    {
+      "type": "shell",
       "scripts": "{{user `local_scripts_dir`}}/99_packer_cleanup_webserver_scripts.sh",
       "remote_path": "/home/ubuntu/99_packer_cleanup_webserver_scripts.sh"
     }
