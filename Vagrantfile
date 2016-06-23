@@ -16,7 +16,7 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "bento/centos-6.7"
+  config.vm.box = "ubuntu/trusty64"
 
   nodes.each do |node, nodeip|
     config.vm.define node do |nodeconfig|
@@ -34,10 +34,10 @@ Vagrant.configure(2) do |config|
         sudo echo "export HTTPS_PROXY=http://10.21.160.105:8080" >> /etc/profile.d/sbs_proxy.sh
         sudo chmod 644 /etc/profile.d/sbs_proxy.sh
 
-        echo "proxy=http://10.21.160.105:8080/" | sudo tee -a /etc/yum.conf
-        echo "timeout=600" | sudo tee -a /etc/yum.conf
-        rpm -ivh https://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
-        yum install -y puppet vim
+        wget https://apt.puppetlabs.com/puppetlabs-release-trusty.deb
+        sudo dpkg -i puppetlabs-release-trusty.deb
+        sudo apt-get update
+        sudo apt-get install puppet -y
       SHELL
     end
   end
