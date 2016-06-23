@@ -12,7 +12,7 @@ class role::startup::webserver (
     notify  => Service['apache2'],
   }
 
-  service { 'apache2': 
+  service { 'apache2':
     ensure => running,
   }
 
