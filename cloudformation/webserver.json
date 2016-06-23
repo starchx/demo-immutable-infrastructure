@@ -29,7 +29,7 @@
     "InstanceType": {
       "Description": "EC2 instance type",
       "Type": "String",
-      "Default": "t2.large",
+      "Default": "t2.micro",
       "AllowedValues": [
         "t2.micro",
         "m3.medium",
