@@ -288,7 +288,7 @@
         ]
       },
       "Type": "AWS::CloudWatch::Alarm"
-    },
+    }
   },
   "Outputs": {
     "ELBInternalDNSName": {
