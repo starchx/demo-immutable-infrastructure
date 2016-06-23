@@ -2,6 +2,10 @@
 class role::packer::webserver (
 ) {
 
+  package { 'ntp':
+    ensure => present,
+  }
+
   package { 'php5':
     ensure => present,
   }
