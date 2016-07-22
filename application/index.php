@@ -1,6 +1,6 @@
 <?php
 
-echo "<h1>Hey Dude #1</h1>";
+echo "<h1>Hey Dude, you are AWESOME!</h1>";
 
 if (getenv('ENVIRONMENT') == 'stg')
 {
