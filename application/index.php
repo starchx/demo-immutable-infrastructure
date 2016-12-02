@@ -1,6 +1,6 @@
 <?php
 
-echo "<h1>Hey Dude, I am immutable Obama!</h1>";
+echo "<h1>Hey Dude, I am immutable Trump!</h1>";
 
 if (getenv('ENVIRONMENT') == 'stg')
 {
